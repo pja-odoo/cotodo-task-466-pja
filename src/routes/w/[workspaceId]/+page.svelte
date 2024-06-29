@@ -14,8 +14,11 @@
 	import SimpleTooltip from '$lib/components/SimpleTooltip.svelte';
 	import { pusherClient } from '$lib/use/pusher';
 	import WorkspaceComments from '$lib/components/WorkspaceComments.svelte';
+	import { Input } from '$lib/components/ui/input';
 
 	const { workspaceId } = $page.params;
+
+	$: tasks = $currentWorkspace?.tasks;
 
 	async function fetchWorkspace() {
 		const response = await trpc().workspace.fetch.query({
@@ -108,6 +111,29 @@
 	}
 
 	$: $currentWorkspace && !$globalChannel ? initChannel() : null;
+
+	let searchInput = '';
+
+	function onSearch() {
+		if (searchInput === '') {
+			tasks = $currentWorkspace?.tasks;
+			return;
+		}
+
+		let term = searchInput.toLocaleLowerCase();
+
+		tasks = $currentWorkspace?.tasks.filter((task) => {
+			return (
+				task.title.toLocaleLowerCase().includes(term) ||
+				task.description?.toLocaleLowerCase().includes(term) ||
+				task.assignedUsers
+					.map((user) => user.name)
+					.filter((e) => e.toLocaleLowerCase().includes(term)).length > 0
+			);
+		});
+
+		console.log(tasks);
+	}
 </script>
 
 <div class="wrapper">
@@ -135,9 +161,20 @@
 			<div>Add the task using + button</div>
 		</div>
 	{/if}
+
+	<div class="flex w-full justify-end px-4 py-6">
+		<Input
+			type="search"
+			placeholder="Search"
+			class="max-w-sm"
+			on:input={onSearch}
+			bind:value={searchInput}
+		/>
+	</div>
+
 	<div class="grid grid-cols-3 gap-3 p-6">
 		{#if $currentWorkspace && $currentWorkspace.tasks.length > 0}
-			{#each $currentWorkspace.tasks as task}
+			{#each tasks as task}
 				<div class="flex min-h-[150px] rounded border p-4">
 					<div class="flex flex-grow flex-col items-start gap-4">
 						<div class="flex items-center gap-2">
@@ -147,7 +184,7 @@
 								type="checkbox"
 								class="h-5 w-5"
 							/>
-							<h1 class="font-semibold">{task.title}</h1>
+							<h1 class="font-semibold {task.done ? 'line-through' : ''}">{task.title}</h1>
 						</div>
 
 						<p class="text-sm text-muted-foreground">{task.description || ''}</p>
