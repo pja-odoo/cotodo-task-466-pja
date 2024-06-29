@@ -88,6 +88,25 @@
 		$globalChannel = channel;
 	}
 
+	async function updateTaskStatus(id: string, value: boolean) {
+		const updatedTo = !value;
+		if (!$currentWorkspace) return;
+
+		$currentWorkspace.tasks = $currentWorkspace!.tasks.map((task) => {
+			if (task.id === id) {
+				task.done = value;
+			}
+
+			return task;
+		});
+
+		await trpc().task.updateStatus.mutate({
+			done: updatedTo,
+			taskId: id,
+			workspaceId: $currentWorkspace!.id
+		});
+	}
+
 	$: $currentWorkspace && !$globalChannel ? initChannel() : null;
 </script>
 
@@ -122,7 +141,12 @@
 				<div class="flex min-h-[150px] rounded border p-4">
 					<div class="flex flex-grow flex-col items-start gap-4">
 						<div class="flex items-center gap-2">
-							<input type="checkbox" class="h-5 w-5" />
+							<input
+								on:change={() => updateTaskStatus(task.id, task.done)}
+								checked={task.done}
+								type="checkbox"
+								class="h-5 w-5"
+							/>
 							<h1 class="font-semibold">{task.title}</h1>
 						</div>
 

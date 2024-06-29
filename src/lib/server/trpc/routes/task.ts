@@ -54,5 +54,33 @@ export const taskRoute = router({
 					id: data.id
 				}
 			};
+		}),
+
+	updateStatus: privateProcedure
+		.input(
+			z.object({
+				workspaceId: z.string(),
+				taskId: z.string(),
+				done: z.boolean()
+			})
+		)
+		.mutation(async ({ ctx, input }) => {
+			console.log(input);
+
+			await ctx.db.task.update({
+				where: {
+					id: input.taskId
+				},
+				data: {
+					done: input.done
+				}
+			});
+
+			pusher.trigger(input.workspaceId, 'refresh', null);
+
+			return {
+				error: false,
+				code: 'DONE'
+			};
 		})
 });
