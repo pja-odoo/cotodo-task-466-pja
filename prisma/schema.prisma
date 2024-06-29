@@ -22,7 +22,7 @@ model User {
     accounts Account[]
 
     createdTasks     Task[]            @relation("createdTasks")
-    assigedTasks     Task[]            @relation("assignedTasks")
+    assignedTasks    Task[]            @relation("assignedTasks")
     ownedWorkspaces  Workspace[]       @relation("ownedWorkspaces")
     sharedWorkspaces SharedWorkspace[]
 
@@ -85,15 +85,16 @@ model Task {
     title       String
     description String?
     priority    Priority  @default(MEDIUM)
+    done        Boolean   @default(false)
     dueDate     DateTime?
 
     workspace   Workspace @relation(fields: [workspaceId], references: [id])
     workspaceId String
 
+    assignedUsers User[] @relation("assignedTasks")
+
     createdBy   User   @relation("createdTasks", fields: [createdById], references: [id])
     createdById String
-
-    assignedUsers User[] @relation("assignedTasks")
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
