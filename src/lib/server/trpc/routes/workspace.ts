@@ -1,4 +1,5 @@
 import { db } from '$lib/server/db';
+import { pusher } from '$lib/server/pusher';
 import { dbService } from '$lib/server/services/db';
 import { tryCatch } from '$lib/utils/tryCatch';
 import { privateProcedure, publicProcedure, router } from '..';
@@ -342,6 +343,8 @@ export const workspaceRoute = router({
 					data: null
 				};
 			}
+
+			await pusher.trigger(input.workspaceId, 'refresh', null);
 
 			return {
 				error: false,

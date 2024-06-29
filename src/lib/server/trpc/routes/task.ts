@@ -4,6 +4,7 @@ import { tryCatch } from '$lib/utils/tryCatch';
 import { Priority } from '@prisma/client';
 import { privateProcedure, publicProcedure, router } from '..';
 import { z } from 'zod';
+import { pusher } from '$lib/server/pusher';
 
 export const taskRoute = router({
 	create: privateProcedure
@@ -42,6 +43,8 @@ export const taskRoute = router({
 					message: 'Failed to create task'
 				};
 			}
+
+			pusher.trigger(input.workspaceId, 'refresh', null);
 
 			return {
 				error: false,

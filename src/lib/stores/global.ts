@@ -1,5 +1,6 @@
 import { writable } from 'svelte/store';
 import { Priority } from '@prisma/client';
+import type { Channel } from 'pusher-js';
 
 interface Workspace {
 	name: string;
@@ -44,3 +45,5 @@ interface Workspace {
 }
 
 export const currentWorkspace = writable<Workspace | null>(null);
+
+export const globalChannel = writable<Channel | null>(null);

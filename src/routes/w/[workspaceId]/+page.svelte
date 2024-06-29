@@ -5,13 +5,14 @@
 	import { Button } from '$lib/components/ui/button';
 	import { ROUTES } from '$lib/const/routes';
 	import { ICONS } from '$lib/const/ui';
-	import { currentWorkspace } from '$lib/stores/global';
+	import { currentWorkspace, globalChannel } from '$lib/stores/global';
 	import { trpc } from '$lib/use/trpc';
 	import Icon from '@iconify/svelte';
 	import { Priority } from '@prisma/client';
 	import * as Avatar from '$components/ui/avatar';
 	import { onMount } from 'svelte';
 	import SimpleTooltip from '$lib/components/SimpleTooltip.svelte';
+	import { pusherClient } from '$lib/use/pusher';
 
 	const { workspaceId } = $page.params;
 
@@ -77,6 +78,16 @@
 	onMount(() => {
 		fetchWorkspace();
 	});
+
+	function initChannel() {
+		const channel = pusherClient.subscribe(`${$currentWorkspace!.id}`);
+
+		channel.bind('refresh', fetchWorkspace);
+
+		$globalChannel = channel;
+	}
+
+	$: $currentWorkspace && !$globalChannel ? initChannel() : null;
 </script>
 
 <div class="wrapper">
