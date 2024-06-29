@@ -21,9 +21,10 @@ model User {
     sessions Session[]
     accounts Account[]
 
-    assignedSubTasks SubTask[] @relation("assignedSubTasks")
-    createdSubTasks  SubTask[] @relation("createdSubTasks")
-    createdTasks     Task[]    @relation("createdTasks")
+    assignedSubTasks SubTask[]   @relation("assignedSubTasks")
+    createdSubTasks  SubTask[]   @relation("createdSubTasks")
+    createdTasks     Task[]      @relation("createdTasks")
+    workspaces       Workspace[] @relation("ownedWorkspaces")
 
     createdAt DateTime @default(now())
 }
@@ -57,6 +58,9 @@ model Workspace {
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+
+    owner   User   @relation("ownedWorkspaces", fields: [ownerId], references: [id])
+    ownerId String
 
     tasks Task[]
 }
