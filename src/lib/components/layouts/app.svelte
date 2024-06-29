@@ -37,7 +37,7 @@
 				background-color: theme('backgroundColor.secondary.DEFAULT');
 				color: theme('colors.secondary.foreground');
 				width: 100%;
-				height: 50px;
+				height: 70px;
 			}
 		}
 	}
