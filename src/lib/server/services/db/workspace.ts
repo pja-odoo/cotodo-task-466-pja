@@ -55,3 +55,19 @@ export function shareWorkspace(data: ShareWorkspaceData) {
 		}
 	});
 }
+
+interface GetSharedUsersData {
+	id: string;
+}
+export function getSharedUsers(data: GetSharedUsersData) {
+	return db.sharedWorkspace.findMany({
+		where: {
+			workspace: {
+				id: data.id
+			}
+		},
+		include: {
+			user: true
+		}
+	});
+}

@@ -5,6 +5,8 @@
 	import UserProfileDropdown from '$components/UserProfileDropdown.svelte';
 	import { currentWorkspace } from '$lib/stores/global';
 	import ShareWorkspace from './ShareWorkspace.svelte';
+
+	const user = $page.data.user;
 </script>
 
 <div class="topbar">
@@ -18,7 +20,7 @@
 		{/each}
 	</div>
 	<div class="tail">
-		{#if $currentWorkspace}
+		{#if $currentWorkspace && $currentWorkspace.owner.id === user?.id}
 			<ShareWorkspace>
 				<Button variant="default" size="sm">Share</Button>
 			</ShareWorkspace>

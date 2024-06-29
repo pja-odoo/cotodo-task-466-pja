@@ -9,12 +9,38 @@
 	import { trpc } from '$lib/use/trpc';
 	import { currentWorkspace } from '$lib/stores/global';
 	import SimpleTooltip from './SimpleTooltip.svelte';
+	import { onMount } from 'svelte';
+	import * as Avatar from '$components/ui/avatar';
 
 	let error: string | null = null;
 
 	let inputEmail = '';
 	let canEdit = false;
-	let shareLoading = true;
+	let shareLoading = false;
+
+	let sharedUsers: {
+		name: string;
+		avatar: string;
+		canEdit: boolean;
+	}[] = [];
+
+	async function fetchSharedUsers() {
+		const sharedUsersResponse = await trpc().workspace.getSharedUsers.query({
+			id: $currentWorkspace!.id
+		});
+
+		if (sharedUsersResponse.error) {
+			error = sharedUsersResponse.message;
+		}
+
+		$currentWorkspace!.sharedUsers = (sharedUsersResponse.data || []).map(({ user, canEdit }) => ({
+			id: user.id,
+			avatar: user.avatar!,
+			canEdit: canEdit,
+			email: user.email,
+			name: user.name
+		}));
+	}
 
 	async function shareWorkspace() {
 		if (!inputEmail) return;
@@ -32,9 +58,18 @@
 		if (response.error) {
 			error = response.message;
 		}
+
+		inputEmail = '';
+		canEdit = false;
+
+		fetchSharedUsers();
 	}
 
-	$: disableShare = shareLoading || inputEmail !== '';
+	onMount(() => {
+		fetchSharedUsers();
+	});
+
+	$: disableShare = inputEmail === '' || shareLoading;
 </script>
 
 <Dialog.Root>
@@ -66,10 +101,10 @@
 
 				<SimpleTooltip
 					message={canEdit
-						? 'Can Edit Task'
-						: 'Can not edit task details (Only mark or unmark as done)'}
+						? 'Can edit details of task'
+						: 'Can only mark/unmark tasks as done assigned to them'}
 				>
-					<Button on:click={() => (canEdit = !canEdit)}>
+					<Button class="text-lg" on:click={() => (canEdit = !canEdit)}>
 						{#if canEdit}
 							<Icon icon={ICONS.PENCIL} />
 						{:else}
@@ -79,6 +114,28 @@
 				</SimpleTooltip>
 
 				<Button bind:disabled={disableShare} on:click={shareWorkspace}>Share</Button>
+			</div>
+
+			<div class="flex flex-col">
+				<div class="my-2 text-lg font-semibold">Shared Users</div>
+				{#if $currentWorkspace}
+					{#each $currentWorkspace.sharedUsers as user}
+						<div class="flex items-center gap-2 py-4">
+							<Avatar.Root class="!h-8 !w-8">
+								<Avatar.Image src={user.avatar} />
+								<Avatar.Fallback>{user.name}</Avatar.Fallback>
+							</Avatar.Root>
+							<div class="flex flex-col justify-center">
+								<p class="text-sm">{user.name}</p>
+								<p class="text-xs text-muted-foreground">
+									{canEdit
+										? 'Can edit details of task'
+										: 'Can only mark/unmark tasks as done assigned to them'}
+								</p>
+							</div>
+						</div>
+					{/each}
+				{/if}
 			</div>
 		</div>
 	</Dialog.Content>

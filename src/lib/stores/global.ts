@@ -7,7 +7,7 @@ interface Workspace {
 
 	tasks: {
 		title: string;
-		description: string;
+		description?: string;
 		priority: Priority;
 		assignedUsers: {
 			name: string;
@@ -16,7 +16,7 @@ interface Workspace {
 			avatar: string;
 		}[];
 		done: boolean;
-		dueDate: Date;
+		dueDate?: Date;
 	}[];
 
 	onlineUsers: {
@@ -24,8 +24,22 @@ interface Workspace {
 		name: string;
 	}[];
 
+	sharedUsers: {
+		id: string;
+		canEdit: boolean;
+		name: string;
+		email: string;
+		avatar: string;
+	}[];
+
 	updatedAt: Date;
 	createdAt: Date;
+
+	owner: {
+		id: string;
+		name: string;
+		avatar: string;
+	};
 }
 
 export const currentWorkspace = writable<Workspace | null>(null);

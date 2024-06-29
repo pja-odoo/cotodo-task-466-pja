@@ -24,7 +24,7 @@ model User {
     createdTasks     Task[]            @relation("createdTasks")
     assignedTasks    Task[]            @relation("assignedTasks")
     ownedWorkspaces  Workspace[]       @relation("ownedWorkspaces")
-    sharedWorkspaces SharedWorkspace[] @relation("sharedWorkspaces")
+    sharedWorkspaces SharedWorkspace[] @relation("userSharedWorkspaces")
 
     createdAt DateTime @default(now())
 }
@@ -56,27 +56,30 @@ model Workspace {
 
     name String
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-
-    owner   User   @relation("ownedWorkspaces", fields: [ownerId], references: [id])
+    owner   User   @relation("ownedWorkspaces", fields: [ownerId], references: [id], onDelete: Cascade)
     ownerId String
 
-    sharedWorkspaces SharedWorkspace[]
+    sharedWorkspaces SharedWorkspace[] @relation("sharedWorkspaces")
 
     tasks Task[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 }
 
 model SharedWorkspace {
     id String @id @default(cuid())
 
-    workspace   Workspace @relation(fields: [workspaceId], references: [id])
+    workspace   Workspace @relation("sharedWorkspaces", fields: [workspaceId], references: [id], onDelete: Cascade)
     workspaceId String
 
     canEdit Boolean @default(false)
 
-    user   User   @relation("sharedWorkspaces", fields: [userId], references: [id])
+    user   User   @relation("userSharedWorkspaces", fields: [userId], references: [id], onDelete: Cascade)
     userId String
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 }
 
 model Task {
