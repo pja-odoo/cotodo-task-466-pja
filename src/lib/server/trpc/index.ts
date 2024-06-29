@@ -1,4 +1,4 @@
-import { initTRPC, type inferAsyncReturnType } from '@trpc/server';
+import { TRPCError, initTRPC, type inferAsyncReturnType } from '@trpc/server';
 import type { RequestEvent } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
 
@@ -20,7 +20,15 @@ export const router = t.router;
 
 export const publicProcedure = t.procedure;
 
-export const privateProcedure = t.procedure.use(({ next }) => {
-	// TODO: implement logic
+export const privateProcedure = t.procedure.use(({ next, ctx }) => {
+	const { event } = ctx;
+
+	// if session or user does not exist then throw 401 error
+	if (!event.locals.session || !event.locals.user) {
+		throw new TRPCError({
+			code: 'UNAUTHORIZED'
+		});
+	}
+
 	return next();
 });
