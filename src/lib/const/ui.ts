@@ -9,5 +9,7 @@ export const ICONS = {
 	PENCIL: 'mdi:pencil',
 	PENCIL_OFF: 'mdi:pencil-off',
 	SPINNER: 'line-md:loading-loop',
-	DELETE: 'material-symbols:delete'
+	DELETE: 'material-symbols:delete',
+	COMMENT: 'material-symbols:comment',
+	SEND: 'lucide:send'
 };
