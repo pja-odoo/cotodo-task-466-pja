@@ -4,6 +4,7 @@ import { redirect, type Handle } from '@sveltejs/kit';
 import { authService } from '$lib/server/services/auth';
 import { ROUTES } from '$lib/const/routes';
 import { NEXT_REDIRECT_SEARCH_PARAMETER_NAME } from '$lib/const/auth';
+import { trpcHook } from '$lib/server/trpc/hook';
 
 const protectedRouteHook: Handle = ({ event, resolve }) => {
 	const { url, locals } = event;
@@ -19,4 +20,4 @@ const protectedRouteHook: Handle = ({ event, resolve }) => {
 	return resolve(event);
 };
 
-export const handle = sequence(authHook, protectedRouteHook);
+export const handle = sequence(authHook, trpcHook, protectedRouteHook);
