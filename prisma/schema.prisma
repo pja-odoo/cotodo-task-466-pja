@@ -96,6 +96,8 @@ model SubTask {
     createdBy   User   @relation("createdSubTasks", fields: [createdById], references: [id])
     createdById String
 
+    dueDate DateTime?
+
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 }
