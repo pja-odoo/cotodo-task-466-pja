@@ -4,6 +4,7 @@
 	import { page } from '$app/stores';
 	import UserProfileDropdown from '$components/UserProfileDropdown.svelte';
 	import { currentWorkspace } from '$lib/stores/global';
+	import ShareWorkspace from './ShareWorkspace.svelte';
 </script>
 
 <div class="topbar">
@@ -17,7 +18,11 @@
 		{/each}
 	</div>
 	<div class="tail">
-		<Button variant="default" size="sm">Share</Button>
+		{#if $currentWorkspace}
+			<ShareWorkspace>
+				<Button variant="default" size="sm">Share</Button>
+			</ShareWorkspace>
+		{/if}
 
 		<UserProfileDropdown />
 	</div>
