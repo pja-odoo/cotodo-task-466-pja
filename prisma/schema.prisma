@@ -21,10 +21,11 @@ model User {
     sessions Session[]
     accounts Account[]
 
-    assignedSubTasks SubTask[]   @relation("assignedSubTasks")
-    createdSubTasks  SubTask[]   @relation("createdSubTasks")
-    createdTasks     Task[]      @relation("createdTasks")
-    workspaces       Workspace[] @relation("ownedWorkspaces")
+    assignedSubTasks SubTask[]         @relation("assignedSubTasks")
+    createdSubTasks  SubTask[]         @relation("createdSubTasks")
+    createdTasks     Task[]            @relation("createdTasks")
+    workspaces       Workspace[]       @relation("ownedWorkspaces")
+    sharedWorkspaces SharedWorkspace[]
 
     createdAt DateTime @default(now())
 }
@@ -62,7 +63,21 @@ model Workspace {
     owner   User   @relation("ownedWorkspaces", fields: [ownerId], references: [id])
     ownerId String
 
+    sharedWorkspaces SharedWorkspace[]
+
     tasks Task[]
+}
+
+model SharedWorkspace {
+    id String @id @default(cuid())
+
+    workspace   Workspace @relation(fields: [workspaceId], references: [id])
+    workspaceId String
+
+    canEdit Boolean @default(false)
+
+    user   User   @relation(fields: [userId], references: [id])
+    userId String
 }
 
 model Task {

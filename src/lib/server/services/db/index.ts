@@ -1,5 +1,7 @@
 import * as userService from './user';
+import * as workspaceService from './workspace';
 
 export const dbService = {
-	user: userService
+	user: userService,
+	workspace: workspaceService
 };
