@@ -13,6 +13,7 @@
 	import { onMount } from 'svelte';
 	import SimpleTooltip from '$lib/components/SimpleTooltip.svelte';
 	import { pusherClient } from '$lib/use/pusher';
+	import WorkspaceComments from '$lib/components/WorkspaceComments.svelte';
 
 	const { workspaceId } = $page.params;
 
@@ -91,10 +92,23 @@
 </script>
 
 <div class="wrapper">
-	{#if $currentWorkspace && $currentWorkspace.owner.id === $page.data.user?.id}
-		<CreateTaskDialog on:create={fetchWorkspace}>
-			<Button class="create-button" size="lg"><Icon font-size={30} icon={ICONS.PLUS} /></Button>
-		</CreateTaskDialog>
+	{#if $currentWorkspace}
+		<div class="absolute bottom-10 right-10 flex gap-4">
+			{#if $currentWorkspace}
+				<WorkspaceComments>
+					<Button class="h-fit w-fit rounded-full p-3 " size="lg"
+						><Icon font-size={30} icon={ICONS.COMMENT} /></Button
+					>
+				</WorkspaceComments>
+			{/if}
+			{#if $currentWorkspace && $currentWorkspace.owner.id === $page.data.user?.id}
+				<CreateTaskDialog on:create={fetchWorkspace}>
+					<Button class="h-fit w-fit rounded-full p-3 " size="lg"
+						><Icon font-size={30} icon={ICONS.PLUS} /></Button
+					>
+				</CreateTaskDialog>
+			{/if}
+		</div>
 	{/if}
 	{#if $currentWorkspace?.tasks.length === 0}
 		<div class="w-full items-center justify-center px-5 py-10 text-center">
@@ -156,16 +170,5 @@
 		flex-direction: column;
 
 		position: relative;
-
-		& .create-button {
-			height: fit-content;
-			border-radius: theme('borderRadius.full');
-
-			padding: theme('padding.4');
-
-			position: absolute;
-			bottom: theme('size.10');
-			right: theme('size.10');
-		}
 	}
 </style>
