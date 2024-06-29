@@ -10,7 +10,9 @@ export type Context = inferAsyncReturnType<typeof createContext>;
 export async function createContext(event: RequestEvent) {
 	return {
 		db,
-		event
+		event,
+		session: event.locals.session,
+		user: event.locals.user
 	};
 }
 
@@ -30,5 +32,11 @@ export const privateProcedure = t.procedure.use(({ next, ctx }) => {
 		});
 	}
 
-	return next();
+	return next({
+		ctx: {
+			// infers the `session` as non-nullable
+			session: { ...ctx.session },
+			user: { ...ctx.user }
+		}
+	});
 });
