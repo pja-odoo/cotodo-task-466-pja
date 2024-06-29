@@ -79,7 +79,6 @@ model SharedWorkspace {
     userId String
 
     createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
 }
 
 model Task {
@@ -91,12 +90,12 @@ model Task {
     done        Boolean   @default(false)
     dueDate     DateTime?
 
-    workspace   Workspace @relation(fields: [workspaceId], references: [id])
+    workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
     workspaceId String
 
     assignedUsers User[] @relation("assignedTasks")
 
-    createdBy   User   @relation("createdTasks", fields: [createdById], references: [id])
+    createdBy   User   @relation("createdTasks", fields: [createdById], references: [id], onDelete: Cascade)
     createdById String
 
     createdAt DateTime @default(now())

@@ -23,7 +23,23 @@
 	};
 
 	async function createNewWorkspace() {
-		const createResponse = await trpc().workspace.create.mutate({ name: 'Untitled Workspace' });
+		const name = prompt('Enter Workspace name');
+
+		if (!name) return;
+
+		const createResponse = await trpc().workspace.create.mutate({
+			name: name
+		});
+
+		refetchWorkspaces();
+	}
+
+	async function deleteWorkspace(id: string) {
+		const response = await trpc().workspace.delete.mutate({
+			id
+		});
+
+		console.log(response);
 
 		refetchWorkspaces();
 	}
@@ -55,8 +71,18 @@
 	<div class="workspace-list">
 		{#if workspaces.length > 0}
 			{#each workspaces as workspace}
-				<a href={`/${workspace.id}`} class="workspace-item">
+				<a href={`/w/${workspace.id}`} class="workspace-item group">
 					{workspace.name}
+
+					<div class="absolute right-4 top-1/2 hidden -translate-y-1/2 group-hover:flex">
+						<Button
+							on:click={() => deleteWorkspace(workspace.id)}
+							variant="destructive"
+							class="p-2 text-lg"
+						>
+							<Icon icon={ICONS.DELETE} />
+						</Button>
+					</div>
 				</a>
 			{/each}
 		{:else}

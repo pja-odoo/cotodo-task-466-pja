@@ -74,20 +74,22 @@ export const workspaceRoute = router({
 			};
 		}),
 
-	deleteWorkSpace: privateProcedure
+	delete: privateProcedure
 		.input(
 			z.object({
 				id: z.string()
 			})
 		)
 		.mutation(async ({ ctx, input }) => {
-			const [data, error] = await tryCatch(() => {
-				return db.workspace.delete({
+			const [data, error] = await tryCatch(async () => {
+				return await db.workspace.delete({
 					where: {
 						id: input.id
 					}
 				});
 			});
+
+			console.log(data);
 
 			if (error) {
 				return {
@@ -189,7 +191,24 @@ export const workspaceRoute = router({
 			let [data, error] = await tryCatch(async () => {
 				return await db.workspace.findFirst({
 					where: {
-						ownerId: ctx.user.id!
+						OR: [
+							{
+								id: input.id,
+								ownerId: ctx.user.id!
+							},
+							{
+								sharedWorkspaces: {
+									some: {
+										workspace: {
+											id: input.id
+										},
+										user: {
+											id: ctx.user.id
+										}
+									}
+								}
+							}
+						]
 					},
 					include: {
 						tasks: {
@@ -220,11 +239,20 @@ export const workspaceRoute = router({
 				});
 			});
 
-			if (error || !data) {
+			if (error) {
 				return {
 					error: true,
 					code: 'DATABASE_ERROR',
 					message: 'Failed to fetch',
+					data: null
+				};
+			}
+
+			if (!data) {
+				return {
+					error: true,
+					code: 'NOT_FOUND',
+					message: 'Workspace not found',
 					data: null
 				};
 			}
