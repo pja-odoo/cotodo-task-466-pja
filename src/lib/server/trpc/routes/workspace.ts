@@ -106,7 +106,7 @@ export const workspaceRoute = router({
 		}),
 
 	getUserWorkspaces: privateProcedure.query(async ({ ctx, input }) => {
-		const [result, error] = await tryCatch(async () => {
+		const [data, error] = await tryCatch(async () => {
 			return await db.workspace.findMany({
 				where: {
 					ownerId: ctx.user.id!
@@ -141,7 +141,122 @@ export const workspaceRoute = router({
 			error: false,
 			code: 'DONE',
 			message: 'Workspaces fetched',
-			data: result
+			data: data
 		};
-	})
+	}),
+
+	fetch: privateProcedure
+		.input(
+			z.object({
+				id: z.string()
+			})
+		)
+		.query(async ({ ctx, input }) => {
+			let [data, error] = await tryCatch(async () => {
+				return await db.workspace.findFirst({
+					where: {
+						ownerId: ctx.user.id!
+					},
+					include: {
+						tasks: {
+							include: {
+								assignedUsers: {
+									select: {
+										email: true,
+										name: true,
+										avatar: true,
+										id: true
+									}
+								}
+							}
+						},
+						sharedWorkspaces: {
+							include: {
+								user: true
+							}
+						}
+					}
+				});
+			});
+
+			if (error || !data) {
+				return {
+					error: true,
+					code: 'DATABASE_ERROR',
+					message: 'Failed to fetch',
+					data: null
+				};
+			}
+
+			if (data.ownerId !== ctx.user.id) {
+				data.tasks = data.tasks.filter((task) => {
+					return task.assignedUsers.find((user) => user.id === ctx.user.id);
+				});
+			}
+
+			return {
+				error: false,
+				code: 'DONE',
+				message: 'Workspace fetched',
+				data: data
+			};
+		}),
+
+	share: privateProcedure
+		.input(
+			z.object({
+				email: z.string(),
+				workspaceId: z.string(),
+				canEdit: z.boolean().default(false)
+			})
+		)
+		.mutation(async ({ ctx, input }) => {
+			let [sharedUser, sharedUserFetchError] = await tryCatch(async () => {
+				return await dbService.user.getUserByEmail(input.email);
+			});
+
+			if (sharedUserFetchError) {
+				return {
+					error: true,
+					code: 'DATABASE_ERROR',
+					message: 'Something went wrong',
+					data: null
+				};
+			}
+
+			if (!sharedUser) {
+				return {
+					error: true,
+					code: 'BAD_INPUT',
+					message: 'User not found',
+					data: null
+				};
+			}
+
+			let [sharedWorkspace, sharedWorkspaceError] = await tryCatch(async () => {
+				return await dbService.workspace.shareWorkspace({
+					id: input.workspaceId,
+					userId: sharedUser.email,
+					canEdit: input.canEdit
+				});
+			});
+
+			if (sharedWorkspaceError || !sharedWorkspace) {
+				return {
+					error: true,
+					code: 'DATABASE_ERORR',
+					message: 'Something went wrong',
+					data: null
+				};
+			}
+
+			return {
+				error: false,
+				code: 'DONE',
+				message: 'Access granted',
+				data: {
+					id: sharedWorkspace.id
+				}
+			};
+		})
 });
