@@ -12,8 +12,8 @@ export const workspaceRoute = router({
 			})
 		)
 		.mutation(async ({ ctx, input }) => {
-			const [data, error] = await tryCatch(() => {
-				return dbService.workspace.createWorkspace({
+			const [data, error] = await tryCatch(async () => {
+				return await dbService.workspace.createWorkspace({
 					name: input.name,
 					userId: ctx.user.id!
 				});
@@ -93,7 +93,8 @@ export const workspaceRoute = router({
 				return {
 					error: true,
 					code: 'DATABASE_ERROR',
-					message: 'Failed to delete workspace'
+					message: 'Failed to delete workspace',
+					data: null
 				};
 			}
 
@@ -102,5 +103,45 @@ export const workspaceRoute = router({
 				code: 'DONE',
 				message: 'Workspace deleted'
 			};
-		})
+		}),
+
+	getUserWorkspaces: privateProcedure.query(async ({ ctx, input }) => {
+		const [result, error] = await tryCatch(async () => {
+			return await db.workspace.findMany({
+				where: {
+					ownerId: ctx.user.id!
+				},
+				include: {
+					tasks: {
+						include: {
+							assignedUsers: {
+								select: {
+									email: true,
+									name: true,
+									avatar: true,
+									id: true
+								}
+							}
+						}
+					}
+				}
+			});
+		});
+
+		if (error) {
+			return {
+				error: true,
+				code: 'DATABASE_ERROR',
+				message: 'Failed to fetch',
+				data: null
+			};
+		}
+
+		return {
+			error: false,
+			code: 'DONE',
+			message: 'Workspaces fetched',
+			data: result
+		};
+	})
 });

@@ -15,4 +15,4 @@ export const AUTH_PROVIDER_ROUTES = {
 	[GOOGLE_PROVIDER_ID]: ROUTES.AUTH_GOOGLE.url
 };
 
-export const PROTECTED_ROUTES = [];
+export const PROTECTED_ROUTES = [ROUTES.APP.pathname];
