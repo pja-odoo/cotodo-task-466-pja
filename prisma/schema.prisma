@@ -51,7 +51,7 @@ model Account {
 }
 
 model Workspace {
-    id String @id
+    id String @id @default(cuid())
 
     name String
 
@@ -62,7 +62,7 @@ model Workspace {
 }
 
 model Task {
-    id String @id
+    id String @id @default(cuid())
 
     title       String
     description String?
@@ -81,7 +81,7 @@ model Task {
 }
 
 model SubTask {
-    id String @id
+    id String @id @default(cuid())
 
     name     String
     done     Boolean  @default(false)
