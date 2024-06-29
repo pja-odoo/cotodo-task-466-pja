@@ -1,5 +1,11 @@
 <script>
-	import '../app.css';
+	import '$lib/styles/global.css';
+
+	import DefaultLayout from '$layouts/default.svelte';
 </script>
 
-<slot></slot>
+<DefaultLayout>
+	<slot />
+</DefaultLayout>
+
+<style></style>
