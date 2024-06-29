@@ -32,3 +32,26 @@ export function updateWorkspace(data: UpdateWorkspaceData) {
 		}
 	});
 }
+
+interface ShareWorkspaceData {
+	id: string;
+	userId: string;
+	canEdit: boolean;
+}
+export function shareWorkspace(data: ShareWorkspaceData) {
+	return db.sharedWorkspace.create({
+		data: {
+			workspace: {
+				connect: {
+					id: data.id
+				}
+			},
+			user: {
+				connect: {
+					id: data.userId
+				}
+			},
+			canEdit: data.canEdit
+		}
+	});
+}
