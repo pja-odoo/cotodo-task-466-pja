@@ -7,5 +7,6 @@ export const ICONS = {
 	LOGOUT: 'material-symbols:logout',
 	INFO: 'mdi:info',
 	PENCIL: 'mdi:pencil',
-	PENCIL_OFF: 'mdi:pencil-off'
+	PENCIL_OFF: 'mdi:pencil-off',
+	SPINNER: 'line-md:loading-loop'
 };
