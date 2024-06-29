@@ -19,7 +19,7 @@
 		height: 100%;
 
 		& .sidebar {
-			width: 30%;
+			width: 25%;
 			min-width: 300px;
 			height: 100%;
 			background-color: theme('backgroundColor.primary.DEFAULT');

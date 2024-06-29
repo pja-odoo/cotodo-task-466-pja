@@ -6,6 +6,7 @@
 	import Icon from '@iconify/svelte';
 	import { ICONS } from '$lib/const/ui';
 	import LogoSVG from '$lib/assets/logo.svelte';
+	import { ROUTES } from '$lib/const/routes';
 
 	let workspaces: NonNullable<RouterOutput['workspace']['getUserWorkspaces']['data']> = [];
 
@@ -30,16 +31,14 @@
 	onMount(() => {
 		refetchWorkspaces();
 	});
-
-	$: console.log(workspaces);
 </script>
 
 <div class="sidebar">
 	<div class="main-header">
-		<div class="app-title">
+		<a href={ROUTES.APP.pathname} class="app-title">
 			<LogoSVG />
 			<h1>CoTodo</h1>
-		</div>
+		</a>
 	</div>
 
 	<div class="my-6"></div>
@@ -56,9 +55,9 @@
 	<div class="workspace-list">
 		{#if workspaces.length > 0}
 			{#each workspaces as workspace}
-				<div class="workspace-item">
+				<a href={`/${workspace.id}`} class="workspace-item">
 					{workspace.name}
-				</div>
+				</a>
 			{/each}
 		{:else}
 			<div class="none-found">
