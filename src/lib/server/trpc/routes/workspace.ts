@@ -102,5 +102,44 @@ export const workspaceRoute = router({
 				code: 'DONE',
 				message: 'Workspace deleted'
 			};
-		})
+		}),
+
+	getUserWorkspaces: privateProcedure.query(async ({ ctx, input }) => {
+		const [result, error] = await tryCatch(() => {
+			return db.workspace.findMany({
+				where: {
+					ownerId: ctx.user.id!
+				},
+				include: {
+					tasks: {
+						include: {
+							assignedUsers: {
+								select: {
+									email: true,
+									name: true,
+									avatar: true,
+									id: true
+								}
+							}
+						}
+					}
+				}
+			});
+		});
+
+		if (error) {
+			return {
+				error: true,
+				code: 'DATABASE_ERROR',
+				message: 'Failed to fetch'
+			};
+		}
+
+		return {
+			error: false,
+			code: 'DONE',
+			message: 'Workspaces fetched',
+			data: result
+		};
+	})
 });
